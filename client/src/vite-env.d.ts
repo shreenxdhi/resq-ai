@@ -1,4 +1,6 @@
 /// <reference types="vite/client" />
+/// <reference types="react" />
+/// <reference types="react-dom" />
 
 // PWA plugin
 declare module 'virtual:pwa-register' {
@@ -11,4 +13,4 @@ declare module 'virtual:pwa-register' {
   }
 
   export function registerSW(options?: RegisterSWOptions): (reloadPage?: boolean) => Promise<void>;
-} 
+}
