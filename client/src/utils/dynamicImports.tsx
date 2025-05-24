@@ -1,23 +1,19 @@
-import React, { lazy, Suspense, ComponentType, ReactNode } from 'react';
+import React, { lazy, Suspense, ComponentType } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-interface LazyComponentProps<T = Record<string, unknown>> {
-  load: () => Promise<{ default: ComponentType<T> }>;
-  loading?: ReactNode;
-  componentProps?: T;
+interface LazyComponentProps {
+  load: () => Promise<{ default: ComponentType<any> }>;
+  loading?: React.ReactNode;
+  [key: string]: any;
 }
 
-export function LazyLoadComponent<T = Record<string, unknown>>({ 
-  load, 
-  loading = <Skeleton height="100%" />, 
-  componentProps 
-}: LazyComponentProps<T>): JSX.Element {
+export function LazyLoadComponent({ load, loading = null, ...props }: LazyComponentProps) {
   const Component = lazy(load);
   
   return (
-    <Suspense fallback={loading}>
-      <Component {...(componentProps || {}) as T} />
+    <Suspense fallback={loading || <Skeleton height="100%" />}>
+      <Component {...props} />
     </Suspense>
   );
 }
