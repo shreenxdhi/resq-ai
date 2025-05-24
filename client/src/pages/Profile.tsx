@@ -1,7 +1,8 @@
-import React, { useEffect, useState, ChangeEvent } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
-import { planService, Plan } from '../utils/apiService';
+import { planService } from '../utils/apiService';
+import { Plan } from '../types/api';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { analyticsService } from '../utils/apiService';
@@ -13,7 +14,7 @@ interface PlanProps {
   onDownload: (plan: Plan) => void;
 }
 
-const PlanCard: React.FC<PlanProps> = ({ plan, onEdit, onDelete, onDownload }) => {
+const PlanCard = ({ plan, onEdit, onDelete, onDownload }: PlanProps) => {
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg">
       <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
@@ -55,17 +56,17 @@ const PlanCard: React.FC<PlanProps> = ({ plan, onEdit, onDelete, onDownload }) =
   );
 };
 
-const Profile: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
+const Profile = () => {
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editPlanId, setEditPlanId] = useState<string | null>(null);
-  const [editPlanContent, setEditPlanContent] = useState<string>('');
+  const [plans, setPlans] = React.useState<Plan[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [editPlanId, setEditPlanId] = React.useState<string | null>(null);
+  const [editPlanContent, setEditPlanContent] = React.useState<string>('');
   
   // Fetch user's plans
-  useEffect(() => {
+  React.useEffect(() => {
     // Redirect if not authenticated
     if (!isAuthenticated) {
       navigate('/login');
@@ -103,7 +104,7 @@ const Profile: React.FC = () => {
       await planService.updatePlan(editPlanId, { content: editPlanContent });
       
       // Update plans in state
-      setPlans(plans.map(plan => 
+      setPlans(plans.map((plan: Plan) => 
         plan.id === editPlanId 
           ? { ...plan, content: editPlanContent, updatedAt: new Date().toISOString() } 
           : plan
@@ -129,7 +130,7 @@ const Profile: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this emergency plan?')) {
       try {
         await planService.deletePlan(planId);
-        setPlans(plans.filter(plan => plan.id !== planId));
+        setPlans(plans.filter((plan: Plan) => plan.id !== planId));
       } catch (err) {
         setError('Failed to delete the plan. Please try again.');
         console.error('Error deleting plan:', err);
@@ -184,7 +185,7 @@ const Profile: React.FC = () => {
   };
   
   // Handle content change
-  const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setEditPlanContent(e.target.value);
   };
   
