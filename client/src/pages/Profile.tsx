@@ -10,8 +10,8 @@ import { analyticsService } from '../utils/apiService';
 interface PlanProps {
   plan: Plan;
   onEdit: (plan: Plan) => void;
-  onDelete: (planId: string) => void;
-  onDownload: (plan: Plan) => void;
+  onDelete: (planId: string) => Promise<void>;
+  onDownload: (plan: Plan) => Promise<void>;
 }
 
 const PlanCard = ({ plan, onEdit, onDelete, onDownload }: PlanProps) => {
@@ -62,8 +62,6 @@ const Profile = () => {
   const [plans, setPlans] = React.useState<Plan[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [editPlanId, setEditPlanId] = React.useState<string | null>(null);
-  const [editPlanContent, setEditPlanContent] = React.useState<string>('');
   
   // Fetch user's plans
   React.useEffect(() => {
@@ -92,37 +90,8 @@ const Profile = () => {
   
   // Start editing a plan
   const handleEditPlan = (plan: Plan) => {
-    setEditPlanId(plan.id);
-    setEditPlanContent(plan.content);
-  };
-  
-  // Save edited plan
-  const handleSavePlan = async () => {
-    if (!editPlanId) return;
-    
-    try {
-      await planService.updatePlan(editPlanId, { content: editPlanContent });
-      
-      // Update plans in state
-      setPlans(plans.map((plan: Plan) => 
-        plan.id === editPlanId 
-          ? { ...plan, content: editPlanContent, updatedAt: new Date().toISOString() } 
-          : plan
-      ));
-      
-      // Reset edit state
-      setEditPlanId(null);
-      setEditPlanContent('');
-    } catch (err) {
-      setError('Failed to save your changes. Please try again.');
-      console.error('Error updating plan:', err);
-    }
-  };
-  
-  // Cancel editing
-  const handleCancelEdit = () => {
-    setEditPlanId(null);
-    setEditPlanContent('');
+    // TODO: Implement edit functionality
+    console.log('Edit plan:', plan);
   };
   
   // Delete a plan
@@ -182,11 +151,6 @@ const Profile = () => {
       // Clean up
       document.body.removeChild(planElement);
     }
-  };
-  
-  // Handle content change
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setEditPlanContent(e.target.value);
   };
   
   // Render loading state
@@ -249,22 +213,11 @@ const Profile = () => {
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
               />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No plans found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              You haven't created any emergency plans yet.
-            </p>
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Create a new plan
-              </button>
-            </div>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No plans</h3>
+            <p className="mt-1 text-sm text-gray-500">Get started by creating a new emergency plan.</p>
           </div>
         ) : (
-          <div className="mt-6 space-y-6">
+          <div className="space-y-6">
             {plans.map((plan: Plan) => (
               <PlanCard
                 key={plan.id}

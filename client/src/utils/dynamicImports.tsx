@@ -1,10 +1,10 @@
-import React, { lazy, Suspense, ComponentType } from 'react';
+import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 interface LazyComponentProps {
   load: () => Promise<{ default: ComponentType<any> }>;
-  loading?: React.ReactNode;
+  loading?: ReactNode;
   [key: string]: any;
 }
 

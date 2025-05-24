@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+// import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Landing from './pages/Landing';
@@ -28,7 +28,11 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
-        <ToastContainer position="top-right" autoClose={5000} />
+        <ToastContainer 
+          position="top-right" 
+          autoClose={5000}
+          aria-label="Notifications"
+        />
       </AuthProvider>
     </ThemeProvider>
   );

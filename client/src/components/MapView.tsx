@@ -1,13 +1,7 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { MapContainer, TileLayer, ZoomControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
-declare module 'leaflet' {
-  interface IconOptions {
-    _getIconUrl?: string;
-  }
-}
 
 // Fix default marker icons
 if (typeof window !== 'undefined') {
@@ -27,13 +21,13 @@ interface MapViewProps {
   style?: React.CSSProperties;
 }
 
-export const MapView: React.FC<MapViewProps> = ({
+export const MapView = ({
   center,
   zoom = 13,
   children,
   className = '',
   style = { height: '100%', width: '100%' }
-}) => {
+}: MapViewProps) => {
   return (
     <div className={className} style={style}>
       <MapContainer 
@@ -53,7 +47,7 @@ export const MapView: React.FC<MapViewProps> = ({
   );
 };
 
-export const ChangeMapView: React.FC<{ center: [number, number] }> = ({ center }) => {
+export const ChangeMapView = ({ center }: { center: [number, number] }) => {
   const map = useMap();
   
   useEffect(() => {
