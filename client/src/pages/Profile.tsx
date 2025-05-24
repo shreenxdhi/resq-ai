@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
 import { planService, Plan } from '../utils/apiService';
@@ -6,7 +6,51 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { analyticsService } from '../utils/apiService';
 
-const Profile = () => {
+interface PlanProps {
+  plan: Plan;
+  onEdit: (plan: Plan) => void;
+  onDelete: (planId: string) => void;
+  onDownload: (plan: Plan) => void;
+}
+
+const PlanCard: React.FC<PlanProps> = ({ plan, onEdit, onDelete, onDownload }) => {
+  return (
+    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div>
+          <h3 className="text-lg leading-6 font-medium text-gray-900">
+            Plan for {plan.location}
+          </h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            {plan.disasterType} • Created {new Date(plan.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onDownload(plan)}
+            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Download PDF
+          </button>
+          <button
+            onClick={() => onEdit(plan)}
+            className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete(plan.id)}
+            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Profile: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -134,6 +178,11 @@ const Profile = () => {
     }
   };
   
+  // Handle content change
+  const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setEditPlanContent(e.target.value);
+  };
+  
   // Render loading state
   if (loading) {
     return (
@@ -211,84 +260,16 @@ const Profile = () => {
         ) : (
           <div className="mt-6 space-y-6">
             {plans.map((plan) => (
-              <div 
-                key={plan.id} 
-                className="bg-white shadow overflow-hidden sm:rounded-lg"
-              >
-                <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-                  <div>
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Plan for {plan.location}
-                    </h3>
-                    <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                      {plan.disasterType} • Created {new Date(plan.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleDownloadPDF(plan)}
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Download PDF
-                    </button>
-                    <button
-                      onClick={() => handleEditPlan(plan)}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeletePlan(plan.id)}
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                  {editPlanId === plan.id ? (
-                    <div>
-                      <textarea
-                        value={editPlanContent}
-                        onChange={(e) => setEditPlanContent(e.target.value)}
-                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md h-64"
-                      />
-                      <div className="mt-4 flex justify-end space-x-3">
-                        <button
-                          onClick={handleCancelEdit}
-                          className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleSavePlan}
-                          className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        >
-                          Save Changes
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="prose max-w-none prose-blue">
-                      <div className="whitespace-pre-wrap">{plan.content}</div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                onEdit={handleEditPlan}
+                onDelete={handleDeletePlan}
+                onDownload={handleDownloadPDF}
+              />
             ))}
           </div>
         )}
-        
-        {/* Back to dashboard */}
-        <div className="mt-10 text-center">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Back to Dashboard
-          </button>
-        </div>
       </div>
     </div>
   );
