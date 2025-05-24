@@ -20,6 +20,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/leaflet": "^1.9.18",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
     "concurrently": "^8.2.2"
   }
-} 
+}
