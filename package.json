@@ -19,10 +19,14 @@
   ],
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.5.0"
+  },
   "devDependencies": {
     "@types/leaflet": "^1.9.18",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "vite": "^6.3.5"
   }
 }
