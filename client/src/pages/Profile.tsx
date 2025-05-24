@@ -14,7 +14,7 @@ interface PlanProps {
   onDownload: (plan: Plan) => Promise<void>;
 }
 
-const PlanCard = ({ plan, onEdit, onDelete, onDownload }: PlanProps) => {
+const PlanCard: React.FC<PlanProps> = ({ plan, onEdit, onDelete, onDownload }) => {
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg">
       <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
@@ -56,7 +56,7 @@ const PlanCard = ({ plan, onEdit, onDelete, onDownload }: PlanProps) => {
   );
 };
 
-const Profile = () => {
+const Profile: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [plans, setPlans] = React.useState<Plan[]>([]);
