@@ -46,6 +46,11 @@ const PlanCard: React.FC<PlanProps> = ({ plan, onEdit, onDelete, onDownload }) =
           </button>
         </div>
       </div>
+      <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+        <div className="prose max-w-none prose-blue">
+          <div className="whitespace-pre-wrap">{plan.content}</div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -259,7 +264,7 @@ const Profile: React.FC = () => {
           </div>
         ) : (
           <div className="mt-6 space-y-6">
-            {plans.map((plan) => (
+            {plans.map((plan: Plan) => (
               <PlanCard
                 key={plan.id}
                 plan={plan}
