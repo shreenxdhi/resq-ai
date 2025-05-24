@@ -4,10 +4,10 @@
   "description": "ResQ AI platform",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
-    "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
+    "start": "npm run start --prefix server & npm run start --prefix client",
     "start:client": "cd client && npm start",
     "start:server": "cd server && npm start",
     "install:all": "npm install && cd client && npm install && cd ../server && npm install"
