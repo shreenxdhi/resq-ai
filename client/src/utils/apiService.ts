@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getOfflinePlans, savePlanOffline, deleteOfflinePlan, updateOfflinePlan, isOnline } from './offlineStorage';
+import { Plan, WeatherData, WeatherAlert, EmergencyTips, City } from '../types/api';
 
 // API base URL - can be configured based on environment
 const API_BASE_URL = '/api';
@@ -12,23 +13,13 @@ const api = axios.create({
   }
 });
 
-// Interface for plan data
-export interface Plan {
-  id: string;
-  location: string;
-  disasterType: string;
-  content: string;
-  createdAt: string;
-  updatedAt?: string;
-}
-
 // API service for plans with offline support
 export const planService = {
   // Get all plans
   async getPlans(): Promise<Plan[]> {
     if (isOnline()) {
       try {
-        const response = await api.get('/plans');
+        const response = await api.get<Plan[]>('/plans');
         // Cache plans for offline use
         response.data.forEach((plan: Plan) => {
           savePlanOffline(plan);
@@ -49,7 +40,7 @@ export const planService = {
   async getPlan(id: string): Promise<Plan | null> {
     if (isOnline()) {
       try {
-        const response = await api.get(`/plans/${id}`);
+        const response = await api.get<Plan>(`/plans/${id}`);
         return response.data;
       } catch (error) {
         console.error(`Error fetching plan ${id}:`, error);
@@ -68,7 +59,7 @@ export const planService = {
   async createPlan(planData: Omit<Plan, 'id' | 'createdAt'>): Promise<Plan> {
     if (isOnline()) {
       try {
-        const response = await api.post('/plans', planData);
+        const response = await api.post<Plan>('/plans', planData);
         // Save to offline storage
         savePlanOffline(response.data);
         return response.data;
@@ -99,7 +90,7 @@ export const planService = {
   async updatePlan(id: string, planData: Partial<Plan>): Promise<Plan> {
     if (isOnline()) {
       try {
-        const response = await api.put(`/plans/${id}`, planData);
+        const response = await api.put<Plan>(`/plans/${id}`, planData);
         // Update in offline storage
         savePlanOffline(response.data);
         return response.data;
@@ -161,9 +152,9 @@ export const planService = {
 
 // Service for top cities data
 export const cityService = {
-  async getTopCities() {
+  async getTopCities(): Promise<City[]> {
     try {
-      const response = await api.get('/top-cities');
+      const response = await api.get<City[]>('/top-cities');
       return response.data;
     } catch (error) {
       console.error('Error fetching top cities:', error);
@@ -175,9 +166,9 @@ export const cityService = {
 
 // Service for weather data
 export const weatherService = {
-  async getWeather(lat: number, lon: number) {
+  async getWeather(lat: number, lon: number): Promise<WeatherData | null> {
     try {
-      const response = await api.get('/weather', {
+      const response = await api.get<WeatherData>('/weather', {
         params: { lat, lon }
       });
       return response.data;
@@ -187,9 +178,9 @@ export const weatherService = {
     }
   },
   
-  async getAlerts(lat: number, lon: number) {
+  async getAlerts(lat: number, lon: number): Promise<WeatherAlert[]> {
     try {
-      const response = await api.get('/weather/alerts', {
+      const response = await api.get<{ alerts: WeatherAlert[] }>('/weather/alerts', {
         params: { lat, lon }
       });
       return response.data.alerts || [];
@@ -202,7 +193,7 @@ export const weatherService = {
 
 // Service for generating emergency tips
 export const emergencyService = {
-  async generateTips(location: string, disasterType: string) {
+  async generateTips(location: string, disasterType: string): Promise<EmergencyTips> {
     if (!isOnline()) {
       // Return fallback tips when offline
       return {
@@ -217,7 +208,7 @@ export const emergencyService = {
     }
     
     try {
-      const response = await api.post('/generate-tips', {
+      const response = await api.post<EmergencyTips>('/generate-tips', {
         location,
         disasterType
       });
@@ -240,7 +231,7 @@ export const emergencyService = {
 
 // Analytics service
 export const analyticsService = {
-  trackLocationSearch(location: string) {
+  trackLocationSearch(location: string): void {
     if (isOnline()) {
       api.post('/analytics/location', { location }).catch(error => {
         console.error('Error tracking location search:', error);
@@ -248,9 +239,9 @@ export const analyticsService = {
     }
   },
   
-  trackDisasterType(disasterType: string) {
+  trackDisasterType(disasterType: string): void {
     if (isOnline()) {
-      api.post('/analytics/disaster-type', { disasterType }).catch(error => {
+      api.post('/analytics/disaster', { disasterType }).catch(error => {
         console.error('Error tracking disaster type:', error);
       });
     }
